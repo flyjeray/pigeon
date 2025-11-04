@@ -1,0 +1,21 @@
+{
+  "name": "pigeon-supabase-wrapper",
+  "version": "1.0.0",
+  "description": "Supabase wrapper library for Pigeon",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "~5.9.3"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.48.1"
+  }
+}

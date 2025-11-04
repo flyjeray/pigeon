@@ -1,0 +1,24 @@
+{
+  "name": "pigeon",
+  "version": "1.0.0",
+  "description": "Pigeon is an end-to-end encrypted messaging app",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run build:wrapper && npm run build:frontend",
+    "build:wrapper": "npm run build --workspace=pigeon-supabase-wrapper",
+    "build:frontend": "npm run build --workspace=pigeon-front-react",
+    "dev": "npm run build:wrapper && npm run dev --workspace=pigeon-front-react",
+    "dev:wrapper": "npm run watch --workspace=pigeon-supabase-wrapper",
+    "dev:frontend": "npm run dev --workspace=pigeon-front-react",
+    "lint": "npm run lint --workspace=pigeon-front-react",
+    "preview": "npm run preview --workspace=pigeon-front-react",
+    "clean": "npm run clean --workspaces --if-present && rm -rf node_modules",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "workspaces": [
+    "pigeon-front-react",
+    "pigeon-supabase-wrapper"
+  ],
+  "author": "",
+  "license": "ISC"
+}
