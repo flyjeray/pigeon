@@ -12,7 +12,8 @@
   "dependencies": {
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "pigeon-supabase-wrapper": "*"
+    "pigeon-supabase-wrapper": "*",
+    "pigeon-clientside-encryption": "*"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

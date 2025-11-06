@@ -1,19 +1,29 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { PigeonSupabaseAuth } from "./components/auth";
+import { PigeonSupabasePublicKeysDB } from "./components/publicKeys";
 
 export interface SupabaseConfig {
   url: string;
   anonKey: string;
 }
 
+type PigeonSupabaseDB = {
+  publicKeys: PigeonSupabasePublicKeysDB;
+}
+
 export class PigeonSupabaseWrapper {
   private static instance: PigeonSupabaseWrapper | null = null;
   private client: SupabaseClient;
   public auth: PigeonSupabaseAuth;
+  
+  public db: PigeonSupabaseDB;
 
   private constructor(config: SupabaseConfig) {
     this.client = createClient(config.url, config.anonKey);
     this.auth = new PigeonSupabaseAuth(this.client);
+    this.db = {
+      publicKeys: new PigeonSupabasePublicKeysDB(this.client),
+    }
   }
 
   static getInstance(config?: SupabaseConfig): PigeonSupabaseWrapper {
