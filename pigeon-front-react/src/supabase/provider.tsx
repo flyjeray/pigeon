@@ -23,7 +23,7 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      const passphrase = window.prompt("Enter a passphrase to secure your private key:");
+      const passphrase = window.prompt(`Please, enter a passphrase to secure your private key\nMake sure to remember it, as it will be required for your login later.\nIf you leave it blank, you will be logged out.`);
       if (!passphrase) {
         await wrapper.auth.signOut();
         setUser(null);
