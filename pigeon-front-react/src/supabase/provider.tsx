@@ -1,15 +1,38 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback, type ReactNode } from "react";
 import { PigeonSupabaseWrapper } from "pigeon-supabase-wrapper";
 import type { User } from "@supabase/supabase-js";
 import { SupabaseContext } from "./context";
 import { PigeonClientsideEncryption, type CryptoRecipe } from "pigeon-clientside-encryption";
+
+const PRIVATE_KEY_STORAGE_KEY = 'pigeon_decrypted_private_key';
 
 export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
   const [wrapper, setWrapper] = useState<PigeonSupabaseWrapper | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
+  const [privateKeyState, setPrivateKeyState] = useState<string | null>(() => {
+    try {
+      return sessionStorage.getItem(PRIVATE_KEY_STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  });
   const isHandleKeysInProcess = useRef(false);
+
+  const getPrivateKey = useCallback(() => {
+    return privateKeyState;
+  }, [privateKeyState]);
+
+  const clearPrivateKey = useCallback(() => {
+    setPrivateKeyState(null);
+    sessionStorage.removeItem(PRIVATE_KEY_STORAGE_KEY);
+  }, []);
+
+  const storePrivateKey = useCallback((key: string) => {
+    setPrivateKeyState(key);
+    sessionStorage.setItem(PRIVATE_KEY_STORAGE_KEY, key);
+  }, []);
 
   const decryptPrivateKey = async (
     wrapper: PigeonSupabaseWrapper,
@@ -27,18 +50,19 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const encryption = new PigeonClientsideEncryption();
-      await encryption.private.decrypt(
+      const decryptedKey = await encryption.private.decrypt(
         data.encoded_key,
         passphrase,
         data.recipe
       );
+      storePrivateKey(decryptedKey);
       return;
     } catch {
       await decryptPrivateKey(wrapper, data);
     }
   };
 
-  const handleKeys = async (wrapper: PigeonSupabaseWrapper, id: string) => {
+  const handleKeys = useCallback(async (wrapper: PigeonSupabaseWrapper, id: string) => {
     if (isHandleKeysInProcess.current) {
       return;
     }
@@ -47,6 +71,10 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
     try {
       const savedPrivateKeyData = await wrapper.db.privateKeys.getPrivateKey(id);
       if (savedPrivateKeyData) {
+        const currentKey = sessionStorage.getItem(PRIVATE_KEY_STORAGE_KEY);
+        if (currentKey) {
+          return;
+        }
         await decryptPrivateKey(wrapper, savedPrivateKeyData);
         return;
       }
@@ -59,18 +87,19 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const encryption = new PigeonClientsideEncryption();
-      const { public: publicKey, private: privateKey } =
+      const { public: generatedPublicKey, private: generatedPrivateKey } =
         await encryption.crypto.generateKeyPair();
       const { encryptedKey, recipe } = await encryption.private.encrypt(
-        privateKey,
+        generatedPrivateKey,
         passphrase
       );
-      await wrapper.db.publicKeys.storePublicKey(publicKey);
+      await wrapper.db.publicKeys.storePublicKey(generatedPublicKey);
       await wrapper.db.privateKeys.storePrivateKey(encryptedKey, recipe);
+      storePrivateKey(generatedPrivateKey);
     } finally {
       isHandleKeysInProcess.current = false;
     }
-  };
+  }, [storePrivateKey]);
 
   useEffect(() => {
     const initSupabase = async () => {
@@ -104,6 +133,8 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
           if (session?.user) {
             setUser(session.user);
             await handleKeys(wrapperInstance, session.user.id);
+          } else {
+            clearPrivateKey();
           }
         });
 
@@ -119,10 +150,20 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
     };
 
     initSupabase();
-  }, []);
+  }, [handleKeys]);
+
+  const contextValue = useMemo(() => ({
+    wrapper,
+    user,
+    loading,
+    initialized,
+    privateKey: privateKeyState,
+    getPrivateKey,
+    clearPrivateKey
+  }), [wrapper, user, loading, initialized, privateKeyState, getPrivateKey, clearPrivateKey]);
 
   return (
-    <SupabaseContext.Provider value={{ wrapper, user, loading, initialized }}>
+    <SupabaseContext.Provider value={contextValue}>
       {children}
     </SupabaseContext.Provider>
   );

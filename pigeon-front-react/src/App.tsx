@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useSupabase, useAuth } from "./supabase/hooks";
+import { useSupabase, useAuth, usePrivateKey } from "./supabase/hooks";
 
 function App() {
   const [status, setStatus] = useState<string>("");
   const { wrapper, initialized, loading } = useSupabase();
   const { user } = useAuth();
+  const { privateKey } = usePrivateKey();
 
   const testSupabaseWrapper = () => {
     if (!wrapper) {
@@ -74,6 +75,10 @@ function App() {
             <button onClick={handleSignOut}>Sign Out</button>
           </div>
         )}
+        {privateKey && (<p>Private Key Loaded: {privateKey.slice(0, 3)}...{privateKey.slice(-3)}</p>)}
+      </div>
+      <div>
+        <h2>Authentication</h2>
         <form onSubmit={onSignUp} style={{ border: "1px solid red" }}>
           <input name="email" type="email" placeholder="Email" required />
           <input

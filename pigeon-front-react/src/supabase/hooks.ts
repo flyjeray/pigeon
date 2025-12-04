@@ -23,3 +23,8 @@ export const useAuth = (): AuthContextType => {
     loading,
   };
 };
+
+export const usePrivateKey = () => {
+  const { privateKey, getPrivateKey, clearPrivateKey } = useSupabase();
+  return { privateKey, getPrivateKey, clearPrivateKey };
+};
