@@ -7,10 +7,10 @@ export class PigeonSupabasePublicKeysDB {
     this.client = client;
   }
 
-  async storePublicKey(userId: string, publicKey: string) {
+  async storePublicKey(publicKey: string) {
     const { data, error } = await this.client
       .from("public_keys")
-      .upsert({ user: userId, key: publicKey });
+      .insert({ key: publicKey });
 
     if (error) {
       throw new Error(`Failed to store public key: ${error.message}`);

@@ -13,7 +13,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "pigeon-clientside-encryption": "*"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.48.1"

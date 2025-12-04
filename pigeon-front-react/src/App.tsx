@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useSupabase, useAuth } from "./supabase/hooks";
-import { PigeonClientsideEncryption } from "pigeon-clientside-encryption";
 
 function App() {
   const [status, setStatus] = useState<string>("");
@@ -43,10 +42,6 @@ function App() {
       setStatus(`Sign In Error: ${error.message}`);
     } else {
       setStatus(`Sign In Success: ${data.user?.email}`);
-      const encryption = new PigeonClientsideEncryption();
-      const { public: publicKey } = await encryption.crypto.generateKeyPair();
-      await wrapper.db.publicKeys.storePublicKey(data.user.id, publicKey);
-      // private key storage
     }
   };
 
