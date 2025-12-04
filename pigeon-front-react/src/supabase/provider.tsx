@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PigeonSupabaseWrapper } from "pigeon-supabase-wrapper";
 import type { User } from "@supabase/supabase-js";
 import { SupabaseContext } from "./context";
-import { PigeonClientsideEncryption } from "pigeon-clientside-encryption";
+import { PigeonClientsideEncryption, type CryptoRecipe } from "pigeon-clientside-encryption";
 
 export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
   const [wrapper, setWrapper] = useState<PigeonSupabaseWrapper | null>(null);
@@ -11,6 +11,33 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
   const [initialized, setInitialized] = useState(false);
   const isHandleKeysInProcess = useRef(false);
 
+  const decryptPrivateKey = async (
+    wrapper: PigeonSupabaseWrapper,
+    data: { encoded_key: string; recipe: CryptoRecipe }
+  ) => {
+    const passphrase = window.prompt( 
+      `Please enter your passphrase to decrypt your private key\nIf you cancel, you will be logged out.`
+    );
+    
+    if (!passphrase) {
+      await wrapper.auth.signOut();
+      setUser(null);
+      return;
+    }
+
+    try {
+      const encryption = new PigeonClientsideEncryption();
+      await encryption.private.decrypt(
+        data.encoded_key,
+        passphrase,
+        data.recipe
+      );
+      return;
+    } catch {
+      await decryptPrivateKey(wrapper, data);
+    }
+  };
+
   const handleKeys = async (wrapper: PigeonSupabaseWrapper, id: string) => {
     if (isHandleKeysInProcess.current) {
       return;
@@ -18,8 +45,9 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
     isHandleKeysInProcess.current = true;
 
     try {
-      const savedPrivateKey = await wrapper.db.privateKeys.getPrivateKey(id);
-      if (savedPrivateKey) {
+      const savedPrivateKeyData = await wrapper.db.privateKeys.getPrivateKey(id);
+      if (savedPrivateKeyData) {
+        await decryptPrivateKey(wrapper, savedPrivateKeyData);
         return;
       }
 
@@ -71,7 +99,8 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
         const client = wrapperInstance.getClient();
         const {
           data: { subscription },
-        } = client.auth.onAuthStateChange(async (_event, session) => {
+        } = client.auth.onAuthStateChange(async (event, session) => {
+          if (event === 'INITIAL_SESSION') return;
           if (session?.user) {
             setUser(session.user);
             await handleKeys(wrapperInstance, session.user.id);
