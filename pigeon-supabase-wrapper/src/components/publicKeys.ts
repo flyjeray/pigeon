@@ -23,7 +23,7 @@ export class PigeonSupabasePublicKeysDB {
     const { data, error } = await this.client
       .from("public_keys")
       .select("key")
-      .eq("user", userId)
+      .eq("user_id", userId)
       .single();
 
     if (error) {

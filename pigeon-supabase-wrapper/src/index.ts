@@ -2,6 +2,9 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { PigeonSupabaseAuth } from "./components/auth";
 import { PigeonSupabasePublicKeysDB } from "./components/publicKeys";
 import { PigeonSupabasePrivateKeysDB } from "./components/privateKeys";
+import { PigeonSupabaseConversationsDB } from "./components/conversations";
+import { PigeonSupabaseMessagesDB } from "./components/messages";
+import { PigeonSupabaseUsersDB } from "./components/users";
 
 export interface SupabaseConfig {
   url: string;
@@ -11,6 +14,9 @@ export interface SupabaseConfig {
 type PigeonSupabaseDB = {
   publicKeys: PigeonSupabasePublicKeysDB;
   privateKeys: PigeonSupabasePrivateKeysDB;
+  conversations: PigeonSupabaseConversationsDB;
+  messages: PigeonSupabaseMessagesDB;
+  users: PigeonSupabaseUsersDB;
 };
 
 export class PigeonSupabaseWrapper {
@@ -26,6 +32,9 @@ export class PigeonSupabaseWrapper {
     this.db = {
       publicKeys: new PigeonSupabasePublicKeysDB(this.client),
       privateKeys: new PigeonSupabasePrivateKeysDB(this.client),
+      conversations: new PigeonSupabaseConversationsDB(this.client),
+      messages: new PigeonSupabaseMessagesDB(this.client),
+      users: new PigeonSupabaseUsersDB(this.client),
     };
   }
 

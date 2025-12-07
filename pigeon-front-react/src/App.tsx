@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useSupabase, useAuth, usePrivateKey } from "./supabase/hooks";
+import { Chat } from "./components/Chat";
 
 function App() {
   const [status, setStatus] = useState<string>("");
@@ -75,7 +76,12 @@ function App() {
             <button onClick={handleSignOut}>Sign Out</button>
           </div>
         )}
-        {privateKey && (<p>Private Key Loaded: {privateKey.slice(0, 3)}...{privateKey.slice(-3)}</p>)}
+        {privateKey && (
+          <p>
+            Private Key Loaded: {privateKey.slice(0, 3)}...
+            {privateKey.slice(-3)}
+          </p>
+        )}
       </div>
       <div>
         <h2>Authentication</h2>
@@ -99,6 +105,8 @@ function App() {
           />
           <button type="submit">Sign In</button>
         </form>
+
+        <Chat />
       </div>
     </>
   );
