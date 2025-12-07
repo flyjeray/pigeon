@@ -1,35 +1,25 @@
-import { useState } from "react";
 import { useSupabase, useAuth, usePrivateKey } from "./supabase/hooks";
+import { useAuthActions } from "./hooks/useAuth";
+import { useSupabaseTest } from "./hooks/useSupabaseTest";
 import { Chat } from "./components/Chat";
 
 function App() {
-  const [status, setStatus] = useState<string>("");
-  const { wrapper, initialized, loading } = useSupabase();
+  const { loading } = useSupabase();
   const { user } = useAuth();
   const { privateKey } = usePrivateKey();
-
-  const testSupabaseWrapper = () => {
-    if (!wrapper) {
-      setStatus("Supabase not initialized");
-      return;
-    }
-    setStatus("SupabaseWrapper accessed successfully!");
-    console.log("Supabase client:", wrapper.getClient());
-  };
+  const { signUp, signIn, signOut, status: authStatus } = useAuthActions();
+  const {
+    testSupabaseWrapper,
+    status: testStatus,
+    initialized,
+  } = useSupabaseTest();
 
   const onSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-
-    if (!wrapper) return;
-    const { data, error } = await wrapper.auth.signUp(email, password);
-    if (error) {
-      setStatus(`Sign Up Error: ${error.message}`);
-    } else {
-      setStatus(`Sign Up Success: ${data.user?.email}`);
-    }
+    await signUp(email, password);
   };
 
   const onSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -37,24 +27,11 @@ function App() {
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-
-    if (!wrapper) return;
-    const { data, error } = await wrapper.auth.signIn(email, password);
-    if (error) {
-      setStatus(`Sign In Error: ${error.message}`);
-    } else {
-      setStatus(`Sign In Success: ${data.user?.email}`);
-    }
+    await signIn(email, password);
   };
 
   const handleSignOut = async () => {
-    if (!wrapper) return;
-    const { error } = await wrapper.auth.signOut();
-    if (error) {
-      setStatus(`Sign Out Error: ${error.message}`);
-    } else {
-      setStatus("Signed out successfully");
-    }
+    await signOut();
   };
 
   if (loading) {
@@ -68,7 +45,10 @@ function App() {
         <h2>Supabase Wrapper Test</h2>
         <button onClick={testSupabaseWrapper}>Test Supabase Wrapper</button>
         <p>
-          Status: {status || (initialized ? "Initialized" : "Not initialized")}
+          Status:{" "}
+          {testStatus ||
+            authStatus ||
+            (initialized ? "Initialized" : "Not initialized")}
         </p>
         {user && (
           <div>

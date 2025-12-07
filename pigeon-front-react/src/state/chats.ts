@@ -1,41 +1,43 @@
 import { create } from "zustand";
 
-export type ChatterData = {
+export type Chat = {
   email: string;
-  pk: string;
+  publicKey: string;
+  conversationId?: string;
 };
 
 type ChatState = {
-  chatters: Record<string, ChatterData>;
-
-  conversationIDs: Record<string, string>;
-  addConversationID: (userID: string, conversationID: string) => void;
+  chats: Record<string, Chat>;
 
   currentChattedUser: string | null;
   selectChattedUser: (id: string | null) => void;
 
-  addChatter: (user_id: string, data: ChatterData) => void;
-  removeChatter: (user_id: string) => void;
+  addChat: (userId: string, chat: Chat) => void;
+  updateConversationId: (userId: string, conversationId: string) => void;
+  removeChat: (userId: string) => void;
 };
 
 export const useChatStore = create<ChatState>((set) => ({
-  chatters: {},
-  conversationIDs: {},
-  addConversationID: (userID: string, conversationID: string) =>
-    set((state) => ({
-      conversationIDs: {
-        ...state.conversationIDs,
-        [userID]: conversationID,
-      },
-    })),
+  chats: {},
   currentChattedUser: null,
   selectChattedUser: (id: string | null) => set({ currentChattedUser: id }),
-  addChatter: (user_id: string, data: ChatterData) =>
-    set((state) => ({ chatters: { ...state.chatters, [user_id]: data } })),
-  removeChatter: (user_id: string) =>
+  addChat: (userId: string, chat: Chat) =>
+    set((state) => ({ chats: { ...state.chats, [userId]: chat } })),
+  updateConversationId: (userId: string, conversationId: string) =>
     set((state) => {
-      const newChatters = { ...state.chatters };
-      delete newChatters[user_id];
-      return { chatters: newChatters };
+      const chat = state.chats[userId];
+      if (!chat) return state;
+      return {
+        chats: {
+          ...state.chats,
+          [userId]: { ...chat, conversationId },
+        },
+      };
+    }),
+  removeChat: (userId: string) =>
+    set((state) => {
+      const newChats = { ...state.chats };
+      delete newChats[userId];
+      return { chats: newChats };
     }),
 }));
