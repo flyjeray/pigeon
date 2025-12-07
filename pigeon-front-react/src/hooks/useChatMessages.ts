@@ -16,18 +16,26 @@ export const useChatMessages = (
   const [decrypted, setDecrypted] = useState<Record<string, string>>({});
   const conversationCheckInProgress = useRef(false);
 
+  /**
+   * Generates a shared secret key for encryption/decryption using ECDH.
+   * Combines the current user's private key with the chatter's public key.
+   */
   const generateSecret = useCallback(async () => {
+    // edge case check, private key must be available
     if (!privateKey) {
       setSecret(null);
       return;
     }
 
+    // convert private key text to CryptoKey object
     const privateKeyObj = await encryption.crypto.textToKey(privateKey, true);
+    // convert chatter's public key text to CryptoKey object
     const publicKeyObj = await encryption.crypto.textToKey(
       chatterPublicKey,
       false
     );
 
+    // generate shared secret using ECDH key agreement
     const sharedSecret = await encryption.crypto.generateSharedSecret(
       privateKeyObj,
       publicKeyObj
@@ -35,18 +43,29 @@ export const useChatMessages = (
     setSecret(sharedSecret);
   }, [encryption.crypto, chatterPublicKey, privateKey]);
 
+  /**
+   * Fetches all messages for the current conversation from the database.
+   */
   const getMessages = useCallback(async () => {
     if (!wrapper) return;
+
+    // get conversation ID for current chat
     const conversationId = chats[chatterId]?.conversationId;
     if (!conversationId) return;
 
+    // fetch all messages from the conversation
     const msgs = await wrapper.db.messages.getConversationMessages(
       conversationId
     );
 
+    // update messages state
     setMessages(msgs);
   }, [chats, chatterId, wrapper]);
 
+  /**
+   * Decrypts all encrypted messages using the shared secret.
+   * Parses base64-encoded message content and initialization vectors.
+   */
   const decryptMessages = useCallback(async () => {
     if (!secret || messages.length === 0) return;
 
@@ -54,16 +73,22 @@ export const useChatMessages = (
 
     for (const msg of messages) {
       try {
+        // skip already decrypted messages
         if (decrypted[msg.id]) continue;
+
+        // parse encrypted message contents
         const encryptedData = JSON.parse(msg.contents);
 
+        // convert base64-encoded message to bytes
         const msgBytes = Uint8Array.from(atob(encryptedData.msg), (c) =>
           c.charCodeAt(0)
         );
+        // convert base64-encoded initialization vector to bytes
         const ivBytes = Uint8Array.from(atob(encryptedData.iv), (c) =>
           c.charCodeAt(0)
         );
 
+        // decrypt message using shared secret
         const decryptedText = await encryption.crypto.decryptString(
           { msg: msgBytes.buffer, iv: ivBytes },
           secret
@@ -75,14 +100,21 @@ export const useChatMessages = (
       }
     }
 
+    // update decrypted messages state
     setDecrypted(newDecrypted);
   }, [secret, messages, encryption.crypto]);
 
+  /**
+   * Checks if a conversation exists with the chatter.
+   * Creates a new conversation if one doesn't exist.
+   */
   const checkConversationExists = useCallback(async () => {
     if (!wrapper) return;
 
+    // conversation already exists in store
     if (chats[chatterId]?.conversationId) return;
 
+    // prevent duplicate check operations
     if (conversationCheckInProgress.current) return;
 
     conversationCheckInProgress.current = true;
@@ -90,46 +122,60 @@ export const useChatMessages = (
     let conversationId = null;
 
     try {
+      // attempt to fetch existing conversation
       const conversation =
         await wrapper.db.conversations.getMyConversationWithUser(chatterId);
       conversationId = conversation.id;
     } catch {
       console.log("+");
+      // create new conversation if none exists
       const newConversation = await wrapper.db.conversations.createConversation(
         chatterId
       );
       conversationId = newConversation.id;
     }
 
+    // update store with conversation ID
     updateConversationId(chatterId, conversationId);
     conversationCheckInProgress.current = false;
   }, [wrapper, chats, chatterId, updateConversationId]);
 
+  /**
+   * Sends an encrypted message to the current conversation.
+   *
+   * @param messageText - The plain text message to encrypt and send.
+   */
   const send = async (messageText: string) => {
     if (!wrapper) return;
 
+    // ensure shared secret is available for encryption
     if (!secret) {
       throw new Error("No shared secret available for encryption");
     }
 
+    // get conversation ID from store
     const conversationId = chats[chatterId]?.conversationId;
     if (!messageText || !conversationId) return;
 
+    // encrypt message using shared secret
     const encryptedMessage = await encryption.crypto.encryptString(
       messageText,
       secret
     );
 
+    // convert encrypted bytes to base64 for storage
     const encryptedData = {
       msg: btoa(String.fromCharCode(...new Uint8Array(encryptedMessage.msg))),
       iv: btoa(String.fromCharCode(...encryptedMessage.iv)),
     };
 
+    // send encrypted message to database
     const msg = await wrapper.db.messages.sendMessage({
       contents: JSON.stringify(encryptedData),
       conversation_id: conversationId,
     });
 
+    // add sent message to messages state
     setMessages((prev) => [...prev, msg]);
   };
 
