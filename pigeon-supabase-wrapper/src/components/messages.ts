@@ -51,4 +51,32 @@ export class PigeonSupabaseMessagesDB {
 
     return data[0] as MessageEntry;
   }
+
+  subscribeToConversation(
+    conversationID: string,
+    onMessage: (message: MessageEntry) => void
+  ) {
+    const channelName = `conversation:${conversationID}`;
+
+    const channel = this.client
+      .channel(channelName)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationID}`,
+        },
+        (payload) => {
+          const message = payload.new as MessageEntry;
+          onMessage(message);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      this.client.removeChannel(channel);
+    };
+  }
 }

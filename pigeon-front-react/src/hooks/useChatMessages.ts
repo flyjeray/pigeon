@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PigeonClientsideEncryption } from "pigeon-clientside-encryption";
-import { useSupabase } from "../supabase/hooks";
+import { useAuth, useSupabase } from "../supabase/hooks";
 import { useChatStore } from "../state/chats";
 import type { MessageEntry } from "pigeon-supabase-wrapper/dist/components/messages";
 
@@ -15,6 +15,7 @@ export const useChatMessages = (
   const [messages, setMessages] = useState<MessageEntry[]>([]);
   const [decrypted, setDecrypted] = useState<Record<string, string>>({});
   const conversationCheckInProgress = useRef(false);
+  const { user } = useAuth();
 
   /**
    * Generates a shared secret key for encryption/decryption using ECDH.
@@ -194,6 +195,29 @@ export const useChatMessages = (
   useEffect(() => {
     checkConversationExists();
   }, [checkConversationExists]);
+
+  useEffect(() => {
+    if (!wrapper) return;
+
+    const conversationId = chats[chatterId]?.conversationId;
+    if (!conversationId) return;
+
+    // subscribe to realtime messages
+    const unsubscribe = wrapper.db.messages.subscribeToConversation(
+      conversationId,
+      (msg) => {
+        if (user && msg.sender !== user.id) {
+          setMessages((prev) => {
+            return [...prev, msg];
+          });
+        }
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [wrapper, chats, chatterId]);
 
   return {
     messages,
