@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useSupabase } from "../supabase/hooks";
 import { useChatStore } from "../state/chats";
+import type { ConversationEntry } from "pigeon-supabase-wrapper/dist/components/conversations";
 
 export const useChatList = () => {
   const { wrapper, user } = useSupabase();
@@ -30,6 +31,29 @@ export const useChatList = () => {
     addChat(id, { email: recipientEmail, publicKey });
   };
 
+  const parseConversationData = async (convo: ConversationEntry) => {
+    if (!wrapper) return;
+
+    let otherUserID: string | null = null;
+
+    // find the other user in the conversation
+    if (convo.user_one !== user?.id) otherUserID = convo.user_one;
+    else if (convo.user_two !== user?.id) otherUserID = convo.user_two;
+
+    // edge case check, not expected to occur
+    if (!otherUserID || chats[otherUserID]) return;
+
+    // fetch email and public key for the other user
+    const email = await wrapper.db.users.getEmailByID(otherUserID);
+    const publicKey = await wrapper.db.publicKeys.getPublicKey(otherUserID);
+
+    // edge case check, not expected to occur
+    if (!email || !publicKey) return;
+
+    // add chat data to store
+    addChat(otherUserID, { email, publicKey, conversationId: convo.id });
+  };
+
   /**
    * Fetches list of user's conversations and updates the chat store.
    */
@@ -39,31 +63,30 @@ export const useChatList = () => {
     // get conversations where current user is present as one of chatters
     const conversations = await wrapper.db.conversations.getMyConversations();
 
-    for (const convo of conversations) {
-      let otherUserID: string | null = null;
-
-      // find the other user in the conversation
-      if (convo.user_one !== user?.id) otherUserID = convo.user_one;
-      else if (convo.user_two !== user?.id) otherUserID = convo.user_two;
-
-      // edge case check, not expected to occur
-      if (!otherUserID || chats[otherUserID]) continue;
-
-      // fetch email and public key for the other user
-      const email = await wrapper.db.users.getEmailByID(otherUserID);
-      const publicKey = await wrapper.db.publicKeys.getPublicKey(otherUserID);
-
-      // edge case check, not expected to occur
-      if (!email || !publicKey) continue;
-
-      // add chat data to store
-      addChat(otherUserID, { email, publicKey, conversationId: convo.id });
+    for (const c of conversations) {
+      parseConversationData(c);
     }
   };
 
   useEffect(() => {
     getList();
   }, []);
+
+  useEffect(() => {
+    if (!wrapper || !user) return;
+
+    // subscribe to realtime messages
+    const unsubscribe = wrapper.db.conversations.subscribeToNewConversations(
+      user.id,
+      (conversation) => {
+        parseConversationData(conversation);
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [wrapper, chats, user]);
 
   return {
     add,

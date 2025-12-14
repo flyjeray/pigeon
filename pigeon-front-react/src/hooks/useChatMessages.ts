@@ -109,14 +109,15 @@ export const useChatMessages = (
    * Checks if a conversation exists with the chatter.
    * Creates a new conversation if one doesn't exist.
    */
-  const checkConversationExists = useCallback(async () => {
-    if (!wrapper) return;
+  const findOrCreateConversationId = useCallback(async (): Promise<string> => {
+    if (!wrapper) throw new Error("No supabase wrapper available");
 
-    // conversation already exists in store
-    if (chats[chatterId]?.conversationId) return;
+    const existingConversationId = chats[chatterId]?.conversationId;
+    if (existingConversationId) return existingConversationId;
 
     // prevent duplicate check operations
-    if (conversationCheckInProgress.current) return;
+    if (conversationCheckInProgress.current)
+      throw new Error("Conversation check already in progress");
 
     conversationCheckInProgress.current = true;
 
@@ -128,7 +129,6 @@ export const useChatMessages = (
         await wrapper.db.conversations.getMyConversationWithUser(chatterId);
       conversationId = conversation.id;
     } catch {
-      console.log("+");
       // create new conversation if none exists
       const newConversation = await wrapper.db.conversations.createConversation(
         chatterId
@@ -139,6 +139,7 @@ export const useChatMessages = (
     // update store with conversation ID
     updateConversationId(chatterId, conversationId);
     conversationCheckInProgress.current = false;
+    return conversationId;
   }, [wrapper, chats, chatterId, updateConversationId]);
 
   /**
@@ -149,13 +150,14 @@ export const useChatMessages = (
   const send = async (messageText: string) => {
     if (!wrapper) return;
 
+    // get conversation ID
+    const conversationId = await findOrCreateConversationId();
+
     // ensure shared secret is available for encryption
     if (!secret) {
       throw new Error("No shared secret available for encryption");
     }
 
-    // get conversation ID from store
-    const conversationId = chats[chatterId]?.conversationId;
     if (!messageText || !conversationId) return;
 
     // encrypt message using shared secret
@@ -191,10 +193,6 @@ export const useChatMessages = (
   useEffect(() => {
     decryptMessages();
   }, [decryptMessages]);
-
-  useEffect(() => {
-    checkConversationExists();
-  }, [checkConversationExists]);
 
   useEffect(() => {
     if (!wrapper) return;
