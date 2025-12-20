@@ -1,5 +1,4 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { ConversationEntry } from "./conversations";
 
 export type MessageEntry = {
   id: string;

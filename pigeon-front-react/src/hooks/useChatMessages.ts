@@ -55,9 +55,8 @@ export const useChatMessages = (
     if (!conversationId) return;
 
     // fetch all messages from the conversation
-    const msgs = await wrapper.db.messages.getConversationMessages(
-      conversationId
-    );
+    const msgs =
+      await wrapper.db.messages.getConversationMessages(conversationId);
 
     // update messages state
     setMessages(msgs);
@@ -130,9 +129,8 @@ export const useChatMessages = (
       conversationId = conversation.id;
     } catch {
       // create new conversation if none exists
-      const newConversation = await wrapper.db.conversations.createConversation(
-        chatterId
-      );
+      const newConversation =
+        await wrapper.db.conversations.createConversation(chatterId);
       conversationId = newConversation.id;
     }
 

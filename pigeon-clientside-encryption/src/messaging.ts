@@ -41,7 +41,10 @@ export class CryptoMessagingUtils {
       receiverPrivate,
       true
     );
-    const senderPublicKey = await CryptoEncryptionUtils.textToKey(senderPublic, false);
+    const senderPublicKey = await CryptoEncryptionUtils.textToKey(
+      senderPublic,
+      false
+    );
 
     const sharedSecret = await CryptoEncryptionUtils.generateSharedSecret(
       receiverPrivateKey,
