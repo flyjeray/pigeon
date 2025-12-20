@@ -212,6 +212,7 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
             await handleKeys(wrapperInstance, session.user.id);
           } else {
             // User logged out - clear the private key
+            setUser(null);
             clearPrivateKey();
           }
         });
@@ -240,6 +241,10 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
     getPrivateKey,
     clearPrivateKey
   }), [wrapper, user, loading, initialized, privateKeyState, getPrivateKey, clearPrivateKey]);
+
+  if (loading) {
+    return <div>Loading Supabase...</div>;
+  }
 
   return (
     <SupabaseContext.Provider value={contextValue}>
