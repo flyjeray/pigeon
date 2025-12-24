@@ -1,0 +1,12 @@
+@use "../../variables";
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: variables.$pigeon-bg-color;
+  color: variables.$pigeon-text-color;
+}

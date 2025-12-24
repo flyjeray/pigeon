@@ -1,0 +1,11 @@
+@use "variables";
+
+body {
+  background-color: variables.$pigeon-bg-color;
+  margin: 0;
+}
+
+* {
+  font-family: "Helvetica";
+  color: variables.$pigeon-text-color;
+}

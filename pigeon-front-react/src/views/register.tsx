@@ -1,33 +1,34 @@
 import { Navigate } from "react-router";
-import { useSupabase } from "../supabase/hooks";
 import {
-  CenteredPage,
-  Input,
-  Container,
   Button,
+  CenteredPage,
+  Container,
   HorizontalDivider,
+  Input,
 } from "../components";
+import { useSupabase } from "../supabase/hooks";
 
-export const LoginView = () => {
+export const RegisterView = () => {
   const { wrapper, user } = useSupabase();
 
   if (user) {
     return <Navigate to="/" />;
   }
 
-  const onSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     if (!wrapper) return;
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    await wrapper.auth.signIn(email, password);
+    await wrapper.auth.signUp(email, password);
   };
 
   return (
     <CenteredPage>
       <h1>Pigeon</h1>
-      <form onSubmit={onSignIn}>
+
+      <form onSubmit={onSignUp}>
         <Container>
           <Input name="email" type="email" placeholder="Email" required />
           <Input
@@ -37,11 +38,12 @@ export const LoginView = () => {
             required
           />
           <HorizontalDivider />
-          <Button type="submit">Sign In</Button>
+          <Button type="submit">Sign Up</Button>
         </Container>
       </form>
+
       <p>
-        Not registered yet? <a href="/register">Register here</a>
+        Already have an account? <a href="/login">Log in</a>
       </p>
     </CenteredPage>
   );

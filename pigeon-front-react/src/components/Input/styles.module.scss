@@ -1,0 +1,10 @@
+@use "../../variables";
+
+.input {
+  background-color: black;
+  border: 1px solid variables.$pigeon-border-color;
+  border-radius: 8px;
+  color: variables.$pigeon-text-color;
+  padding: 10px;
+  font-size: variables.$primary-text-size;
+}

@@ -1,0 +1,11 @@
+@use "../../variables";
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: variables.$pigeon-container-bg-color;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid variables.$pigeon-border-color;
+}

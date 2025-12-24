@@ -1,0 +1,11 @@
+@use "../../variables";
+
+.button {
+  background-color: black;
+  color: variables.$pigeon-text-color;
+  font-size: variables.$primary-text-size;
+  border: 1px solid variables.$pigeon-border-color;
+  border-radius: 8px;
+  padding: 10px 15px;
+  cursor: pointer;
+}
