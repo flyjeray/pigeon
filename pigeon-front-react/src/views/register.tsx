@@ -1,4 +1,3 @@
-import { Navigate } from "react-router";
 import {
   Button,
   CenteredPage,
@@ -6,22 +5,17 @@ import {
   HorizontalDivider,
   Input,
 } from "../components";
-import { useSupabase } from "../supabase/hooks";
+import { useAuthActions } from "../hooks/useAuthActions";
 
 export const RegisterView = () => {
-  const { wrapper, user } = useSupabase();
-
-  if (user) {
-    return <Navigate to="/" />;
-  }
+  const { signUp, error } = useAuthActions();
 
   const onSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (!wrapper) return;
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    await wrapper.auth.signUp(email, password);
+    await signUp({ email, password });
   };
 
   return (
@@ -39,6 +33,11 @@ export const RegisterView = () => {
           />
           <HorizontalDivider />
           <Button type="submit">Sign Up</Button>
+          {error && (
+            <p style={{ color: "red", textAlign: "center", width: "100%" }}>
+              {error}
+            </p>
+          )}
         </Container>
       </form>
 

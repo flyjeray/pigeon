@@ -1,5 +1,3 @@
-import { Navigate } from "react-router";
-import { useSupabase } from "../supabase/hooks";
 import {
   CenteredPage,
   Input,
@@ -7,21 +5,17 @@ import {
   Button,
   HorizontalDivider,
 } from "../components";
+import { useAuthActions } from "../hooks/useAuthActions";
 
 export const LoginView = () => {
-  const { wrapper, user } = useSupabase();
-
-  if (user) {
-    return <Navigate to="/" />;
-  }
+  const { signIn, error, isLoading } = useAuthActions();
 
   const onSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (!wrapper) return;
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    await wrapper.auth.signIn(email, password);
+    await signIn({ email, password });
   };
 
   return (
@@ -37,7 +31,14 @@ export const LoginView = () => {
             required
           />
           <HorizontalDivider />
-          <Button type="submit">Sign In</Button>
+          <Button type="submit" disabled={isLoading}>
+            Sign In
+          </Button>
+          {error && (
+            <p style={{ color: "red", textAlign: "center", width: "100%" }}>
+              {error}
+            </p>
+          )}
         </Container>
       </form>
       <p>

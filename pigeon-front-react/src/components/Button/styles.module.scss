@@ -8,4 +8,9 @@
   border-radius: 8px;
   padding: 10px 15px;
   cursor: pointer;
+
+  &[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
