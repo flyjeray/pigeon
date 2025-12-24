@@ -9,7 +9,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user } = useSupabase();
 
   if (!user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return children;

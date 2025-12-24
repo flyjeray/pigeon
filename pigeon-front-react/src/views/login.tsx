@@ -5,7 +5,7 @@ export const LoginView = () => {
   const { wrapper, user } = useSupabase();
 
   if (user) {
-    return <Navigate to="/chat" />;
+    return <Navigate to="/" />;
   }
 
   const onSignUp = async (e: React.FormEvent<HTMLFormElement>) => {

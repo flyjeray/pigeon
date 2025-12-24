@@ -10,9 +10,9 @@ createRoot(document.getElementById("root")!).render(
     <SupabaseProvider>
       <BrowserRouter>
         <Routes>
-          <Route index Component={LoginView} />
+          <Route path="/login" Component={LoginView} />
           <Route
-            path="/chat"
+            index
             element={
               <ProtectedRoute>
                 <MessagingView />
