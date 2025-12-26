@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Button,
   CenteredPage,
@@ -8,7 +9,10 @@ import {
 import { useAuthActions } from "../hooks/useAuthActions";
 
 export const RegisterView = () => {
-  const { signUp, error } = useAuthActions();
+  const [success, setSuccess] = useState(false);
+  const { signUp, error } = useAuthActions({
+    onSignupSuccess: () => setSuccess(true),
+  });
 
   const onSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,6 +21,18 @@ export const RegisterView = () => {
     const password = formData.get("password") as string;
     await signUp({ email, password });
   };
+
+  if (success) {
+    return (
+      <CenteredPage>
+        <h1>Registration Successful!</h1>
+        <p>Please check your email to verify your account before logging in.</p>
+        <p>
+          <a href="/login">Go to Login</a>
+        </p>
+      </CenteredPage>
+    );
+  }
 
   return (
     <CenteredPage>

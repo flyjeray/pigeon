@@ -7,8 +7,13 @@ type AuthPayload = {
   password: string;
 };
 
-export const useAuthActions = () => {
+type HookParameters = {
+  onSignupSuccess?: () => void;
+};
+
+export const useAuthActions = (props?: HookParameters) => {
   const navigate = useNavigate();
+  const { onSignupSuccess } = props || {};
   const { wrapper, user } = useSupabase();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,8 +50,16 @@ export const useAuthActions = () => {
     setError(null);
 
     const { data, error } = await wrapper.auth.signUp(email, password);
+
     if (error) {
       setError(error.message);
+    } else if (
+      data?.user &&
+      data.user.identities?.length &&
+      !data.user.user_metadata.email_verified &&
+      onSignupSuccess
+    ) {
+      onSignupSuccess();
     } else if (data?.user && !data.user.identities?.length) {
       // User exists but wasn't created (email already registered)
       // Supabase returns empty identities array for existing users
