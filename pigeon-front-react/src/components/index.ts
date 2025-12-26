@@ -7,3 +7,4 @@ export * from "./Button";
 export * from "./HorizontalDivider";
 export * from "./Row";
 export * from "./ChatMessage";
+export * from "./CenteredColumn";

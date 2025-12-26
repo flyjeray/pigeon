@@ -1,9 +1,16 @@
-import { Button, CenteredPage, ChatList, ChatWindow, Row } from "../components";
+import {
+  Button,
+  CenteredColumn,
+  CenteredPage,
+  ChatList,
+  ChatWindow,
+  Row,
+} from "../components";
 import { useChatStore } from "../state/chats";
 import { useSupabase } from "../supabase/hooks";
 
 export const MessagingView = () => {
-  const { wrapper } = useSupabase();
+  const { user, wrapper } = useSupabase();
   const { currentChattedUser } = useChatStore();
 
   const handleSignOut = async () => {
@@ -14,9 +21,12 @@ export const MessagingView = () => {
   return (
     <CenteredPage
       bottom={
-        <Button alt onClick={handleSignOut}>
-          Logout
-        </Button>
+        <CenteredColumn>
+          <p style={{ margin: 0 }}>Logged in as {user ? user.email : "..."}</p>
+          <Button alt onClick={handleSignOut}>
+            Logout
+          </Button>
+        </CenteredColumn>
       }
     >
       <Row>
