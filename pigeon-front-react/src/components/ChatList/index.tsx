@@ -34,7 +34,7 @@ export const ChatList = () => {
         </Row>
       </form>
 
-      <HorizontalDivider />
+      {Object.entries(chats).length > 0 && <HorizontalDivider />}
 
       {Object.entries(chats).map(([user_id, chat]) => (
         <Button

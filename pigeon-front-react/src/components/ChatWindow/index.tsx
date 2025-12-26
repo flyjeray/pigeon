@@ -40,17 +40,19 @@ export const ChatWindow = ({ id }: Props) => {
 
   return (
     <Container light>
-      <div className={styles.messages} ref={messagesDivRef}>
-        {messages.map((msg) => (
-          <ChatMessage
-            key={`msg-${msg.id}`}
-            isOwnMessage={msg.sender !== id}
-            message={decrypted[msg.id] || "Decrypting..."}
-          />
-        ))}
-      </div>
+      {messages.length > 0 && (
+        <div className={styles.messages} ref={messagesDivRef}>
+          {messages.map((msg) => (
+            <ChatMessage
+              key={`msg-${msg.id}`}
+              isOwnMessage={msg.sender !== id}
+              message={decrypted[msg.id] || "Decrypting..."}
+            />
+          ))}
+        </div>
+      )}
 
-      <HorizontalDivider />
+      {messages.length > 0 && <HorizontalDivider />}
 
       <form onSubmit={handleSendMessage}>
         <Row>
