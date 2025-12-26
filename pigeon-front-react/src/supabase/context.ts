@@ -8,8 +8,6 @@ export type SupabaseContextType = {
   loading: boolean;
   initialized: boolean;
   privateKey: string | null;
-  getPrivateKey: () => string | null;
-  clearPrivateKey: () => void;
 };
 
 export const SupabaseContext = createContext<SupabaseContextType | null>(null);

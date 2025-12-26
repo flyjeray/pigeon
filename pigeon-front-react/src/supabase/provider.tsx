@@ -43,12 +43,6 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
   const isHandleKeysInProcess = useRef(false);
 
   /**
-   * Returns the current decrypted private key from state
-   */
-  const getPrivateKey = useCallback(() => {
-    return privateKeyState;
-  }, [privateKeyState]);
-  /**
    * Clears the private key from both state and session storage
    * Used when logging out or when key needs to be removed
    */
@@ -74,37 +68,40 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
    * @param wrapper - The Supabase wrapper instance
    * @param data - Object containing the encrypted key and the recipe used to encrypt it
    */
-  const decryptPrivateKey = async (
-    wrapper: PigeonSupabaseWrapper,
-    data: { encoded_key: string; recipe: CryptoRecipe }
-  ) => {
-    // Prompt user for their passphrase
-    const passphrase = window.prompt(
-      `Please enter your passphrase to decrypt your private key\nIf you cancel, you will be logged out.`
-    );
-
-    // If user cancels, log them out
-    if (!passphrase) {
-      await wrapper.auth.signOut();
-      setUser(null);
-      return;
-    }
-
-    try {
-      // Attempt to decrypt the private key with the provided passphrase
-      const decryptedKey = await PigeonClientsideEncryption.decryptPrivateKey(
-        data.encoded_key,
-        passphrase,
-        data.recipe
+  const decryptPrivateKey = useCallback(
+    async (
+      wrapper: PigeonSupabaseWrapper,
+      data: { encoded_key: string; recipe: CryptoRecipe }
+    ) => {
+      // Prompt user for their passphrase
+      const passphrase = window.prompt(
+        `Please enter your passphrase to decrypt your private key\nIf you cancel, you will be logged out.`
       );
-      // Store the decrypted key for use in the session
-      storePrivateKey(decryptedKey);
-      return;
-    } catch {
-      // If decryption fails (wrong passphrase), prompt again recursively
-      await decryptPrivateKey(wrapper, data);
-    }
-  };
+
+      // If user cancels, log them out
+      if (!passphrase) {
+        await wrapper.auth.signOut();
+        setUser(null);
+        return;
+      }
+
+      try {
+        // Attempt to decrypt the private key with the provided passphrase
+        const decryptedKey = await PigeonClientsideEncryption.decryptPrivateKey(
+          data.encoded_key,
+          passphrase,
+          data.recipe
+        );
+        // Store the decrypted key for use in the session
+        storePrivateKey(decryptedKey);
+        return;
+      } catch {
+        // If decryption fails (wrong passphrase), prompt again recursively
+        await decryptPrivateKey(wrapper, data);
+      }
+    },
+    [storePrivateKey]
+  );
 
   /**
    * Handles the private/public key pair for a user
@@ -181,7 +178,7 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
         isHandleKeysInProcess.current = false;
       }
     },
-    [storePrivateKey]
+    [decryptPrivateKey, storePrivateKey]
   );
 
   // Initialize Supabase on component mount
@@ -244,7 +241,7 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
     };
 
     initSupabase();
-  }, [handleKeys]);
+  }, [clearPrivateKey, handleKeys]);
 
   // Memoize context value to prevent unnecessary re-renders of consumers
   const contextValue = useMemo(
@@ -254,18 +251,8 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
       loading,
       initialized,
       privateKey: privateKeyState,
-      getPrivateKey,
-      clearPrivateKey,
     }),
-    [
-      wrapper,
-      user,
-      loading,
-      initialized,
-      privateKeyState,
-      getPrivateKey,
-      clearPrivateKey,
-    ]
+    [wrapper, user, loading, initialized, privateKeyState]
   );
 
   if (loading) {

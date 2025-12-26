@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PigeonClientsideEncryption } from "pigeon-clientside-encryption";
-import { useAuth, useSupabase } from "../supabase/hooks";
+import { useSupabase } from "../supabase/hooks";
 import { useChatStore } from "../state/chats";
 import type { MessageEntry } from "pigeon-supabase-wrapper/dist/components/messages";
 
@@ -8,13 +8,12 @@ export const useChatMessages = (
   chatterId: string,
   chatterPublicKey: string
 ) => {
-  const { privateKey, wrapper } = useSupabase();
+  const { privateKey, wrapper, user } = useSupabase();
   const { chats, updateConversationId } = useChatStore((state) => state);
   const [secret, setSecret] = useState<CryptoKey | null>(null);
   const [messages, setMessages] = useState<MessageEntry[]>([]);
   const [decrypted, setDecrypted] = useState<Record<string, string>>({});
   const conversationCheckInProgress = useRef(false);
-  const { user } = useAuth();
 
   /**
    * Generates a shared secret key for encryption/decryption using ECDH.
