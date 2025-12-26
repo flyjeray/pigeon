@@ -1,4 +1,4 @@
-import { ChatList, ChatWindow } from "../components";
+import { Button, CenteredPage, ChatList, ChatWindow, Row } from "../components";
 import { useChatStore } from "../state/chats";
 import { useSupabase } from "../supabase/hooks";
 
@@ -12,21 +12,17 @@ export const MessagingView = () => {
   };
 
   return (
-    <div>
-      <button onClick={handleSignOut}>Logout</button>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          gap: 16,
-          width: "100%",
-          border: "1px solid purple",
-          padding: 8,
-        }}
-      >
+    <CenteredPage
+      bottom={
+        <Button alt onClick={handleSignOut}>
+          Logout
+        </Button>
+      }
+    >
+      <Row>
         <ChatList />
         {currentChattedUser && <ChatWindow id={currentChattedUser} />}
-      </div>
-    </div>
+      </Row>
+    </CenteredPage>
   );
 };

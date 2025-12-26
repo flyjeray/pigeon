@@ -1,10 +1,14 @@
 import { useChatStore } from "../../state/chats";
 import { useChatList } from "../../hooks/useChatList";
+import { Container } from "../Container";
+import { Button } from "../Button";
+import { HorizontalDivider } from "../HorizontalDivider";
+import { Input } from "../Input";
+import { Row } from "../Row";
 
 export const ChatList = () => {
-  const { selectChattedUser: setCurrentChatID } = useChatStore(
-    (state) => state
-  );
+  const { currentChattedUser, selectChattedUser: setCurrentChatID } =
+    useChatStore((state) => state);
   const { add, chats } = useChatList();
 
   const handleNewChatSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -15,27 +19,32 @@ export const ChatList = () => {
   };
 
   return (
-    <div style={{ padding: 8, border: "1px solid green" }}>
-      <p>Chats</p>
-      <div style={{ display: "flex", flexDirection: "row", gap: 8 }}>
-        <form onSubmit={handleNewChatSubmit}>
-          <input
+    <Container>
+      <form onSubmit={handleNewChatSubmit}>
+        <Row>
+          <Input
             type="email"
             name="recipientEmail"
             placeholder="New Recipient Email"
             required
           />
-          <button type="submit">Add chatter</button>
-        </form>
-      </div>
+          <Button style={{ flex: 1 }} type="submit">
+            Add chatter
+          </Button>
+        </Row>
+      </form>
+
+      <HorizontalDivider />
+
       {Object.entries(chats).map(([user_id, chat]) => (
-        <button
+        <Button
           onClick={() => setCurrentChatID(user_id)}
           key={`chat-${user_id}`}
+          disabled={currentChattedUser === user_id}
         >
           {chat.email}
-        </button>
+        </Button>
       ))}
-    </div>
+    </Container>
   );
 };

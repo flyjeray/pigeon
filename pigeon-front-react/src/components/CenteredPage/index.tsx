@@ -1,5 +1,15 @@
 import styles from "./styles.module.scss";
 
-export const CenteredPage = ({ children }: { children: React.ReactNode }) => {
-  return <div className={styles.content}>{children}</div>;
+type Props = {
+  children: React.ReactNode;
+  bottom?: React.ReactNode;
+};
+
+export const CenteredPage = ({ children, bottom }: Props) => {
+  return (
+    <div className={styles.content}>
+      {children}
+      {bottom && <div className={styles.bottom}>{bottom}</div>}
+    </div>
+  );
 };

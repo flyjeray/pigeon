@@ -1,5 +1,14 @@
 import styles from "./styles.module.scss";
 
-export const Container = ({ children }: { children: React.ReactNode }) => {
-  return <div className={styles.container}>{children}</div>;
+type Props = {
+  children: React.ReactNode;
+  light?: boolean;
+};
+
+export const Container = ({ children, light }: Props) => {
+  return (
+    <div className={light ? styles.container_light : styles.container_dark}>
+      {children}
+    </div>
+  );
 };

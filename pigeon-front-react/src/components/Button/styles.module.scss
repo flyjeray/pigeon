@@ -2,15 +2,22 @@
 
 .button {
   background-color: black;
-  color: variables.$pigeon-text-color;
+  color: variables.$text-color-light;
   font-size: variables.$primary-text-size;
-  border: 1px solid variables.$pigeon-border-color;
+  border: 1px solid variables.$border-color;
   border-radius: 8px;
   padding: 10px 15px;
   cursor: pointer;
 
   &[disabled] {
     opacity: 0.6;
-    cursor: not-allowed;
+    cursor: default;
   }
+}
+
+.button_alt {
+  @extend .button;
+  background-color: variables.$el-bg-light-3;
+  border-color: variables.$border-color;
+  color: variables.$text-color-dark;
 }

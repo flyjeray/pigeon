@@ -64,6 +64,28 @@ export const useChatMessages = (
     setMessages(msgs);
   }, [chats, chatterId, wrapper]);
 
+  const decryptSingleMessage = async (contents: string, _secret: CryptoKey) => {
+    // parse encrypted message contents
+    const encryptedData = JSON.parse(contents);
+
+    // convert base64-encoded message to bytes
+    const msgBytes = Uint8Array.from(atob(encryptedData.msg), (c) =>
+      c.charCodeAt(0)
+    );
+    // convert base64-encoded initialization vector to bytes
+    const ivBytes = Uint8Array.from(atob(encryptedData.iv), (c) =>
+      c.charCodeAt(0)
+    );
+
+    // decrypt message using shared secret
+    const decryptedText = await PigeonClientsideEncryption.decryptSharedString(
+      { msg: msgBytes.buffer, iv: ivBytes },
+      _secret
+    );
+
+    return decryptedText;
+  };
+
   /**
    * Decrypts all encrypted messages using the shared secret.
    * Parses base64-encoded message content and initialization vectors.
@@ -73,35 +95,23 @@ export const useChatMessages = (
 
     const newDecrypted: Record<string, string> = { ...decrypted };
 
-    for (const msg of messages) {
-      try {
-        // skip already decrypted messages
-        if (decrypted[msg.id]) continue;
-
-        // parse encrypted message contents
-        const encryptedData = JSON.parse(msg.contents);
-
-        // convert base64-encoded message to bytes
-        const msgBytes = Uint8Array.from(atob(encryptedData.msg), (c) =>
-          c.charCodeAt(0)
-        );
-        // convert base64-encoded initialization vector to bytes
-        const ivBytes = Uint8Array.from(atob(encryptedData.iv), (c) =>
-          c.charCodeAt(0)
-        );
-
-        // decrypt message using shared secret
-        const decryptedText =
-          await PigeonClientsideEncryption.decryptSharedString(
-            { msg: msgBytes.buffer, iv: ivBytes },
+    // decrypt messages that haven't been decrypted yet
+    const decryptions = messages
+      .filter((msg) => !decrypted[msg.id])
+      .map(async (msg) => {
+        try {
+          const decryptedText = await decryptSingleMessage(
+            msg.contents,
             secret
           );
-        newDecrypted[msg.id] = decryptedText;
-      } catch (error) {
-        console.error(`Failed to decrypt message ${msg.id}:`, error);
-        newDecrypted[msg.id] = "[Failed to decrypt]";
-      }
-    }
+          newDecrypted[msg.id] = decryptedText;
+        } catch (error) {
+          console.error(`Failed to decrypt message ${msg.id}:`, error);
+          newDecrypted[msg.id] = "[Failed to decrypt]";
+        }
+      });
+
+    await Promise.all(decryptions);
 
     // update decrypted messages state
     setDecrypted(newDecrypted);

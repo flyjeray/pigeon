@@ -1,0 +1,17 @@
+@use "../../variables";
+
+.message_own {
+  background-color: variables.$el-bg;
+  color: variables.$text-color-light;
+  align-self: flex-end;
+  padding: 10px;
+  border-radius: 8px;
+  max-width: 60%;
+  font-size: variables.$primary-text-size;
+}
+
+.message_received {
+  @extend .message_own;
+  background-color: variables.$el-bg-light-2;
+  align-self: flex-start;
+}
