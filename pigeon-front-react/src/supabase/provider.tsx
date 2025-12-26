@@ -43,14 +43,6 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
   const isHandleKeysInProcess = useRef(false);
 
   /**
-   * Clears the private key from both state and session storage
-   * Used when logging out or when key needs to be removed
-   */
-  const clearPrivateKey = useCallback(() => {
-    setPrivateKeyState(null);
-    sessionStorage.removeItem(PRIVATE_KEY_STORAGE_KEY);
-  }, []);
-  /**
    * Stores the decrypted private key in both state and session storage
    * This allows the key to persist across page refreshes during the session
    */
@@ -225,7 +217,8 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
           } else {
             // User logged out - clear the private key
             setUser(null);
-            clearPrivateKey();
+            setPrivateKeyState(null);
+            sessionStorage.removeItem(PRIVATE_KEY_STORAGE_KEY);
           }
         });
 
@@ -241,7 +234,7 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
     };
 
     initSupabase();
-  }, [clearPrivateKey, handleKeys]);
+  }, [handleKeys]);
 
   // Memoize context value to prevent unnecessary re-renders of consumers
   const contextValue = useMemo(
