@@ -8,7 +8,6 @@ export const useChatMessages = (
   chatterId: string,
   chatterPublicKey: string
 ) => {
-  const encryption = new PigeonClientsideEncryption();
   const { privateKey, wrapper } = useSupabase();
   const { chats, updateConversationId } = useChatStore((state) => state);
   const [secret, setSecret] = useState<CryptoKey | null>(null);
@@ -29,20 +28,23 @@ export const useChatMessages = (
     }
 
     // convert private key text to CryptoKey object
-    const privateKeyObj = await encryption.crypto.textToKey(privateKey, true);
+    const privateKeyObj = await PigeonClientsideEncryption.plaintextToKey(
+      privateKey,
+      true
+    );
     // convert chatter's public key text to CryptoKey object
-    const publicKeyObj = await encryption.crypto.textToKey(
+    const publicKeyObj = await PigeonClientsideEncryption.plaintextToKey(
       chatterPublicKey,
       false
     );
 
     // generate shared secret using ECDH key agreement
-    const sharedSecret = await encryption.crypto.generateSharedSecret(
+    const sharedSecret = await PigeonClientsideEncryption.generateSharedSecret(
       privateKeyObj,
       publicKeyObj
     );
     setSecret(sharedSecret);
-  }, [encryption.crypto, chatterPublicKey, privateKey]);
+  }, [chatterPublicKey, privateKey]);
 
   /**
    * Fetches all messages for the current conversation from the database.
@@ -89,10 +91,11 @@ export const useChatMessages = (
         );
 
         // decrypt message using shared secret
-        const decryptedText = await encryption.crypto.decryptString(
-          { msg: msgBytes.buffer, iv: ivBytes },
-          secret
-        );
+        const decryptedText =
+          await PigeonClientsideEncryption.decryptSharedString(
+            { msg: msgBytes.buffer, iv: ivBytes },
+            secret
+          );
         newDecrypted[msg.id] = decryptedText;
       } catch (error) {
         console.error(`Failed to decrypt message ${msg.id}:`, error);
@@ -102,7 +105,7 @@ export const useChatMessages = (
 
     // update decrypted messages state
     setDecrypted(newDecrypted);
-  }, [secret, messages, encryption.crypto]);
+  }, [secret, messages]);
 
   /**
    * Checks if a conversation exists with the chatter.
@@ -159,10 +162,8 @@ export const useChatMessages = (
     if (!messageText || !conversationId) return;
 
     // encrypt message using shared secret
-    const encryptedMessage = await encryption.crypto.encryptString(
-      messageText,
-      secret
-    );
+    const encryptedMessage =
+      await PigeonClientsideEncryption.encryptSharedString(messageText, secret);
 
     // convert encrypted bytes to base64 for storage
     const encryptedData = {

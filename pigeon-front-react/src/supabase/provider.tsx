@@ -92,8 +92,7 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       // Attempt to decrypt the private key with the provided passphrase
-      const encryption = new PigeonClientsideEncryption();
-      const decryptedKey = await encryption.private.decrypt(
+      const decryptedKey = await PigeonClientsideEncryption.decryptPrivateKey(
         data.encoded_key,
         passphrase,
         data.recipe
@@ -161,15 +160,15 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
         }
 
         // Generate a new public/private key pair
-        const encryption = new PigeonClientsideEncryption();
         const { public: generatedPublicKey, private: generatedPrivateKey } =
-          await encryption.crypto.generateKeyPair();
+          await PigeonClientsideEncryption.generateKeyPair();
 
         // Encrypt the private key with the user's passphrase
-        const { encryptedKey, recipe } = await encryption.private.encrypt(
-          generatedPrivateKey,
-          passphrase
-        );
+        const { encryptedKey, recipe } =
+          await PigeonClientsideEncryption.encryptPrivateKey(
+            generatedPrivateKey,
+            passphrase
+          );
 
         // Store public key and encrypted private key in the database
         await wrapper.db.publicKeys.storePublicKey(generatedPublicKey);

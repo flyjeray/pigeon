@@ -41,11 +41,6 @@ pigeon/
 
 **Purpose:** Pure cryptographic operations with zero dependencies on the backend or UI framework.
 
-**Exports:**
-
-- `CryptoEncryptionUtils`: Core encryption primitives (key generation, encryption/decryption)
-- `CryptoPrivateKeyUtils`: Passphrase-based private key encryption for secure storage
-
 #### 2. `pigeon-supabase-wrapper`
 
 **Purpose:** Type-safe abstraction layer over Supabase client operations.
