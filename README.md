@@ -77,10 +77,8 @@ Pigeon implements a simplified E2EE system based on Elliptic Curve Diffie-Hellma
 2. **Key pair generation**:
 
    ```typescript
-   const keyPair = await crypto.subtle.generateKey({ name: "X25519" }, true, [
-     "deriveKey",
-     "deriveBits",
-   ]);
+   const { public: generatedPublicKey, private: generatedPrivateKey } =
+     await PigeonClientsideEncryption.generateKeyPair();
    ```
 
    - Generates X25519 elliptic curve key pair
@@ -90,11 +88,11 @@ Pigeon implements a simplified E2EE system based on Elliptic Curve Diffie-Hellma
 3. **Private key encryption**:
 
    ```typescript
-   const { encryptedKey, recipe } = await CryptoPrivateKeyUtils.encrypt(
-     privateKey,
-     passphrase,
-     DefaultRecipe
-   );
+   const { encryptedKey, recipe } =
+     await PigeonClientsideEncryption.encryptPrivateKey(
+       generatedPrivateKey,
+       passphrase
+     );
    ```
 
    - Uses PBKDF2 with 250,000 iterations to derive encryption key from passphrase
@@ -112,12 +110,9 @@ Pigeon implements a simplified E2EE system based on Elliptic Curve Diffie-Hellma
 1. **Shared secret generation** (performed once per conversation):
 
    ```typescript
-   const sharedSecret = await crypto.subtle.deriveKey(
-     { name: "X25519", public: receiverPublicKey },
-     senderPrivateKey,
-     { name: "AES-GCM", length: 256 },
-     false,
-     ["encrypt", "decrypt"]
+   const sharedSecret = await PigeonClientsideEncryption.generateSharedSecret(
+     privateKeyObj,
+     publicKeyObj
    );
    ```
 
@@ -128,12 +123,8 @@ Pigeon implements a simplified E2EE system based on Elliptic Curve Diffie-Hellma
 2. **Message encryption**:
 
    ```typescript
-   const iv = crypto.getRandomValues(new Uint8Array(12));
-   const encrypted = await crypto.subtle.encrypt(
-     { name: "AES-GCM", iv },
-     sharedSecret,
-     messageText
-   );
+   const encryptedMessage =
+     await PigeonClientsideEncryption.encryptSharedString(messageText, secret);
    ```
 
    - Generates random 12-byte initialization vector (IV)
@@ -150,8 +141,8 @@ Pigeon implements a simplified E2EE system based on Elliptic Curve Diffie-Hellma
 1. **Private key recovery**:
 
    ```typescript
-   const privateKey = await CryptoPrivateKeyUtils.decrypt(
-     encryptedKey,
+   const decryptedKey = await PigeonClientsideEncryption.decryptPrivateKey(
+     encoded_key,
      passphrase,
      recipe
    );
@@ -170,10 +161,9 @@ Pigeon implements a simplified E2EE system based on Elliptic Curve Diffie-Hellma
 3. **Message decryption**:
 
    ```typescript
-   const decrypted = await crypto.subtle.decrypt(
-     { name: "AES-GCM", iv: storedIV },
-     sharedSecret,
-     encryptedMessage
+   const decryptedText = await PigeonClientsideEncryption.decryptSharedString(
+     { msg: buffer, iv: ivBytes },
+     secret
    );
    ```
 
@@ -321,7 +311,7 @@ This section documents key architectural choices and the reasoning behind them.
 
    ```bash
    # Apply migrations from supabase/migrations/
-   npx supabase db push
+   supabase db push
    ```
 
 4. Build the project:
