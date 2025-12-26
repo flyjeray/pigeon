@@ -303,7 +303,7 @@ This section documents key architectural choices and the reasoning behind them.
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 20+ and npm
 - Supabase account and project
 
 ### Installation
