@@ -7,10 +7,12 @@ import { ProtectedRoute } from "./utils";
 
 import "./index.scss";
 
+const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <SupabaseProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <Routes>
           <Route path="/login" Component={LoginView} />
           <Route path="/register" Component={RegisterView} />
