@@ -1,4 +1,4 @@
-import styles from "./slyles.module.scss";
+import styles from "./styles.module.scss";
 
 type Props = {
   message: string;
