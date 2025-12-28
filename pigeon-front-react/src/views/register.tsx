@@ -7,6 +7,7 @@ import {
   Input,
 } from "../components";
 import { useAuthActions } from "../hooks/useAuthActions";
+import { Link } from "react-router";
 
 export const RegisterView = () => {
   const [success, setSuccess] = useState(false);
@@ -28,7 +29,7 @@ export const RegisterView = () => {
         <h1>Registration Successful!</h1>
         <p>Please check your email to verify your account before logging in.</p>
         <p>
-          <a href="/login">Go to Login</a>
+          <Link to="/login">Go to Login</Link>
         </p>
       </CenteredPage>
     );
@@ -56,7 +57,7 @@ export const RegisterView = () => {
       </Container>
 
       <p>
-        Already have an account? <a href="/login">Log in</a>
+        Already have an account? <Link to="/login">Log in</Link>
       </p>
     </CenteredPage>
   );

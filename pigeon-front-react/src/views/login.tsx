@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import {
   CenteredPage,
   Input,
@@ -40,7 +41,7 @@ export const LoginView = () => {
         )}
       </Container>
       <p>
-        Not registered yet? <a href="/register">Register here</a>
+        Not registered yet? <Link to="/register">Register here</Link>
       </p>
     </CenteredPage>
   );
