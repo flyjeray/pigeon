@@ -13,6 +13,7 @@ import {
   PigeonClientsideEncryption,
   type CryptoRecipe,
 } from "pigeon-clientside-encryption";
+import { useChatStore } from "../state/chats";
 
 // Storage key for persisting the decrypted private key in session storage
 const PRIVATE_KEY_STORAGE_KEY = "pigeon_decrypted_private_key";
@@ -23,6 +24,7 @@ const PRIVATE_KEY_STORAGE_KEY = "pigeon_decrypted_private_key";
  * Also handles user authentication state and private key management.
  */
 export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
+  const { clear: clearChats } = useChatStore();
   // Wrapper instance for interacting with Supabase
   const [wrapper, setWrapper] = useState<PigeonSupabaseWrapper | null>(null);
   // Current authenticated user
@@ -219,6 +221,7 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
             setUser(null);
             setPrivateKeyState(null);
             sessionStorage.removeItem(PRIVATE_KEY_STORAGE_KEY);
+            clearChats();
           }
         });
 

@@ -15,6 +15,7 @@ type ChatState = {
   addChat: (userId: string, chat: Chat) => void;
   updateConversationId: (userId: string, conversationId: string) => void;
   removeChat: (userId: string) => void;
+  clear: () => void;
 };
 
 export const useChatStore = create<ChatState>((set) => ({
@@ -40,4 +41,5 @@ export const useChatStore = create<ChatState>((set) => ({
       delete newChats[userId];
       return { chats: newChats };
     }),
+  clear: () => set({ chats: {}, currentChattedUser: null }),
 }));
