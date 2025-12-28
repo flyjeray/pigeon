@@ -15,7 +15,7 @@ type Props = {
 
 export const ChatWindow = ({ id }: Props) => {
   const { chats } = useChatStore((state) => state);
-  const { messages, decrypted, send } = useChatMessages(
+  const { messages, decrypted, send, isLoadingMessages } = useChatMessages(
     id,
     chats[id].publicKey
   );
@@ -40,7 +40,7 @@ export const ChatWindow = ({ id }: Props) => {
 
   return (
     <Container light>
-      {messages.length > 0 && (
+      {messages.length > 0 && !isLoadingMessages && (
         <div className={styles.messages} ref={messagesDivRef}>
           {messages.map((msg) => (
             <ChatMessage

@@ -13,6 +13,7 @@ export const useChatMessages = (
   const [secret, setSecret] = useState<CryptoKey | null>(null);
   const [messages, setMessages] = useState<MessageEntry[]>([]);
   const [decrypted, setDecrypted] = useState<Record<string, string>>({});
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const conversationCheckInProgress = useRef(false);
 
   /**
@@ -55,12 +56,15 @@ export const useChatMessages = (
     const conversationId = chats[chatterId]?.conversationId;
     if (!conversationId) return;
 
+    setIsLoadingMessages(true);
+
     // fetch all messages from the conversation
     const msgs =
       await wrapper.db.messages.getConversationMessages(conversationId);
 
     // update messages state
     setMessages(msgs);
+    setIsLoadingMessages(false);
   }, [chats, chatterId, wrapper]);
 
   const decryptSingleMessage = async (contents: string, _secret: CryptoKey) => {
@@ -229,5 +233,6 @@ export const useChatMessages = (
     messages,
     decrypted,
     send,
+    isLoadingMessages,
   };
 };
