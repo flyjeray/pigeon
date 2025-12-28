@@ -1,17 +1,34 @@
 @use "../../variables";
 
-.content {
+.page {
   display: flex;
   flex-direction: column;
   gap: 12px;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: calc(100vh - 24px);
   background-color: variables.$body-bg;
   color: variables.$text-color-light;
+  padding: 12px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
+
+.content_desktopRow {
+  @extend .content;
+  @media (min-width: variables.$mobile-width) {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 .bottom {
-  position: absolute;
-  bottom: 20px;
+  margin-top: 40px;
 }

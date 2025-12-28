@@ -55,7 +55,7 @@ export const ChatWindow = ({ id }: Props) => {
       {messages.length > 0 && <HorizontalDivider />}
 
       <form onSubmit={handleSendMessage}>
-        <Row>
+        <Row mobileColumn>
           <Input
             defaultValue=""
             type="text"

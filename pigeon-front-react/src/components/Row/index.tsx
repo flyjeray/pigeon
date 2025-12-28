@@ -1,5 +1,14 @@
 import styles from "./styles.module.scss";
 
-export const Row = ({ children }: { children: React.ReactNode }) => {
-  return <div className={styles.row}>{children}</div>;
+type Props = {
+  children: React.ReactNode;
+  mobileColumn?: boolean;
+};
+
+export const Row = ({ children, mobileColumn }: Props) => {
+  return (
+    <div className={mobileColumn ? styles.row_mobileColumn : styles.row}>
+      {children}
+    </div>
+  );
 };

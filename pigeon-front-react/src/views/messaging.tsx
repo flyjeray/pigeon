@@ -4,7 +4,6 @@ import {
   CenteredPage,
   ChatList,
   ChatWindow,
-  Row,
 } from "../components";
 import { useChatStore } from "../state/chats";
 import { useSupabase } from "../supabase/hooks";
@@ -20,6 +19,7 @@ export const MessagingView = () => {
 
   return (
     <CenteredPage
+      desktopRow
       bottom={
         <CenteredColumn>
           <p style={{ margin: 0 }}>Logged in as {user ? user.email : "..."}</p>
@@ -29,10 +29,8 @@ export const MessagingView = () => {
         </CenteredColumn>
       }
     >
-      <Row>
-        <ChatList />
-        {currentChattedUser && <ChatWindow id={currentChattedUser} />}
-      </Row>
+      <ChatList />
+      {currentChattedUser && <ChatWindow id={currentChattedUser} />}
     </CenteredPage>
   );
 };

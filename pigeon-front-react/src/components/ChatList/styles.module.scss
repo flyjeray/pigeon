@@ -1,0 +1,8 @@
+.contact_list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+  max-height: 175px;
+  overflow-y: scroll;
+}

@@ -38,24 +38,22 @@ export const RegisterView = () => {
     <CenteredPage>
       <h1>Pigeon</h1>
 
-      <form onSubmit={onSignUp}>
-        <Container>
-          <Input name="email" type="email" placeholder="Email" required />
-          <Input
-            name="password"
-            type="password"
-            placeholder="Password"
-            required
-          />
-          <HorizontalDivider />
-          <Button type="submit">Sign Up</Button>
-          {error && (
-            <p style={{ color: "red", textAlign: "center", width: "100%" }}>
-              {error}
-            </p>
-          )}
-        </Container>
-      </form>
+      <Container isForm onSubmit={onSignUp}>
+        <Input name="email" type="email" placeholder="Email" required />
+        <Input
+          name="password"
+          type="password"
+          placeholder="Password"
+          required
+        />
+        <HorizontalDivider />
+        <Button type="submit">Sign Up</Button>
+        {error && (
+          <p style={{ color: "red", textAlign: "center", width: "100%" }}>
+            {error}
+          </p>
+        )}
+      </Container>
 
       <p>
         Already have an account? <a href="/login">Log in</a>

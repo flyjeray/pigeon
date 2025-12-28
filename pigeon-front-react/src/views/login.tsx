@@ -21,26 +21,24 @@ export const LoginView = () => {
   return (
     <CenteredPage>
       <h1>Pigeon</h1>
-      <form onSubmit={onSignIn}>
-        <Container>
-          <Input name="email" type="email" placeholder="Email" required />
-          <Input
-            name="password"
-            type="password"
-            placeholder="Password"
-            required
-          />
-          <HorizontalDivider />
-          <Button type="submit" disabled={isLoading}>
-            Sign In
-          </Button>
-          {error && (
-            <p style={{ color: "red", textAlign: "center", width: "100%" }}>
-              {error}
-            </p>
-          )}
-        </Container>
-      </form>
+      <Container isForm onSubmit={onSignIn}>
+        <Input name="email" type="email" placeholder="Email" required />
+        <Input
+          name="password"
+          type="password"
+          placeholder="Password"
+          required
+        />
+        <HorizontalDivider />
+        <Button type="submit" disabled={isLoading}>
+          Sign In
+        </Button>
+        {error && (
+          <p style={{ color: "red", textAlign: "center", width: "100%" }}>
+            {error}
+          </p>
+        )}
+      </Container>
       <p>
         Not registered yet? <a href="/register">Register here</a>
       </p>

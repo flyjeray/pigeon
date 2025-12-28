@@ -5,6 +5,7 @@ import { Button } from "../Button";
 import { HorizontalDivider } from "../HorizontalDivider";
 import { Input } from "../Input";
 import { Row } from "../Row";
+import styles from "./styles.module.scss";
 
 export const ChatList = () => {
   const { currentChattedUser, selectChattedUser: setCurrentChatID } =
@@ -21,30 +22,32 @@ export const ChatList = () => {
   return (
     <Container>
       <form onSubmit={handleNewChatSubmit}>
-        <Row>
+        <Row mobileColumn>
           <Input
             type="email"
             name="recipientEmail"
-            placeholder="New Recipient Email"
+            placeholder="New Contact Email"
             required
           />
           <Button style={{ flex: 1 }} type="submit">
-            Add chatter
+            Add
           </Button>
         </Row>
       </form>
 
       {Object.entries(chats).length > 0 && <HorizontalDivider />}
 
-      {Object.entries(chats).map(([user_id, chat]) => (
-        <Button
-          onClick={() => setCurrentChatID(user_id)}
-          key={`chat-${user_id}`}
-          disabled={currentChattedUser === user_id}
-        >
-          {chat.email}
-        </Button>
-      ))}
+      <div className={styles.contact_list}>
+        {Object.entries(chats).map(([user_id, chat]) => (
+          <Button
+            onClick={() => setCurrentChatID(user_id)}
+            key={`chat-${user_id}`}
+            disabled={currentChattedUser === user_id}
+          >
+            {chat.email}
+          </Button>
+        ))}
+      </div>
     </Container>
   );
 };
