@@ -10,13 +10,15 @@ import styles from "./styles.module.scss";
 export const ChatList = () => {
   const { currentChattedUser, selectChattedUser: setCurrentChatID } =
     useChatStore((state) => state);
-  const { add, chats } = useChatList();
+  const { add, chats, error } = useChatList();
 
   const handleNewChatSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
     const formData = new FormData(e.currentTarget);
     const recipientEmail = formData.get("recipientEmail") as string;
     await add(recipientEmail);
+    form.reset();
   };
 
   return (
@@ -34,6 +36,12 @@ export const ChatList = () => {
           </Button>
         </Row>
       </form>
+
+      {error && (
+        <p style={{ color: "red", textAlign: "center", width: "100%" }}>
+          {error}
+        </p>
+      )}
 
       {Object.entries(chats).length > 0 && <HorizontalDivider />}
 

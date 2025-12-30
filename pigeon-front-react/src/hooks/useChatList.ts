@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSupabase } from "../supabase/hooks";
 import { useChatStore } from "../state/chats";
 import type { ConversationEntry } from "pigeon-supabase-wrapper/dist/components/conversations";
@@ -6,6 +6,8 @@ import type { ConversationEntry } from "pigeon-supabase-wrapper/dist/components/
 export const useChatList = () => {
   const { wrapper, user } = useSupabase();
   const { chats, addChat } = useChatStore((state) => state);
+
+  const [error, setError] = useState<string | null>(null);
 
   /**
    * Adds a new chat to the chat list by recipient email.
@@ -15,20 +17,27 @@ export const useChatList = () => {
   const add = async (recipientEmail: string) => {
     if (!wrapper) return;
 
-    // get user ID by email
-    const id = await wrapper.db.users.getIDByEmail(recipientEmail);
+    setError(null);
 
-    // edge case check, not expected to occur
-    if (!id || chats[id]) return;
+    try {
+      // get user ID by email
+      const id = await wrapper.db.users.getIDByEmail(recipientEmail);
 
-    // get public key for the user
-    const publicKey = await wrapper.db.publicKeys.getPublicKey(id);
+      // edge case check, not expected to occur
+      if (!id || chats[id]) return;
 
-    // edge case check, not expected to occur
-    if (!publicKey) return;
+      // get public key for the user
+      const publicKey = await wrapper.db.publicKeys.getPublicKey(id);
 
-    // add chat data to store
-    addChat(id, { email: recipientEmail, publicKey });
+      // edge case check, not expected to occur
+      if (!publicKey) return;
+
+      // add chat data to store
+      addChat(id, { email: recipientEmail, publicKey });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+      return;
+    }
   };
 
   const parseConversationData = async (convo: ConversationEntry) => {
@@ -91,5 +100,6 @@ export const useChatList = () => {
   return {
     add,
     chats,
+    error,
   };
 };
