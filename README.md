@@ -8,6 +8,7 @@ A practice project implementing end-to-end encrypted messaging with React and Su
 
 - [Overview](#overview)
 - [Monorepo Architecture](#monorepo-architecture)
+- [Real-Time Updates](#real-time-updates)
 - [End-to-End Encryption Flow](#end-to-end-encryption-flow)
 - [Design Decisions & Trade-offs](#design-decisions--trade-offs)
 - [Getting Started](#getting-started)
@@ -53,6 +54,7 @@ pigeon/
 - Conversations table
 - Messages table
 - Users table
+- Realtime subscriptions for conversations and messages
 
 #### 3. `pigeon-front-react`
 
@@ -65,6 +67,13 @@ pigeon/
 - `state/`: Zustand store for chat state management
 - `views/`: Page-level components (login, register, messaging)
 - `supabase/`: Supabase context and React integration
+
+## Real-Time Updates
+
+Pigeon uses Supabase Realtime (wrapped by the `pigeon-supabase-wrapper` package) to keep the UI in sync with the latest conversations and messages without manual refresh.
+
+- **Conversations:** The Supabase wrapper exposes a `subscribeToNewConversations` API that listens for new conversation rows involving the current user and notifies the frontend, which then updates the chat list.
+- **Messages:** The Supabase wrapper exposes a `subscribeToConversation` API that listens for new messages in a given conversation and notifies the frontend. Incoming messages are appended to local state and decrypted on the client using the shared secret, preserving end-to-end encryption while still providing live updates.
 
 ## End-to-End Encryption Flow
 
