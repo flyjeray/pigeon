@@ -20,6 +20,13 @@ export const RegisterView = () => {
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+    const passwordConfirm = formData.get("password_confirm") as string;
+
+    if (password !== passwordConfirm) {
+      alert("Passwords do not match");
+      return;
+    }
+
     await signUp({ email, password });
   };
 
@@ -45,6 +52,12 @@ export const RegisterView = () => {
           name="password"
           type="password"
           placeholder="Password"
+          required
+        />
+        <Input
+          name="password_confirm"
+          type="password"
+          placeholder="Confirm Password"
           required
         />
         <HorizontalDivider />
