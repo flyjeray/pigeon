@@ -116,7 +116,7 @@ describe("private key encryption", () => {
       recipe
     );
 
-    expect(decrypted).toBe(privateKey + "typo");
+    expect(decrypted).toBe(privateKey);
   });
 
   it("rejects decryption with wrong passphrase", async () => {
