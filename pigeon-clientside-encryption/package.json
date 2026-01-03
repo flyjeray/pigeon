@@ -12,11 +12,15 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "vitest": "^2.1.5",
+    "@types/node": "^22.10.2"
   }
 }

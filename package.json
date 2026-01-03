@@ -4,6 +4,7 @@
   "description": "Pigeon is an end-to-end encrypted messaging app",
   "main": "index.js",
   "scripts": {
+    "test:encryption": "npm test --workspace=pigeon-clientside-encryption",
     "build": "npm run build:encryption && npm run build:wrapper && npm run build:frontend",
     "build:wrapper": "npm run build --workspace=pigeon-supabase-wrapper",
     "build:frontend": "npm run build --workspace=pigeon-front-react",
