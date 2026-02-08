@@ -21,6 +21,7 @@
     "pigeon-clientside-encryption": "*"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.48.1"
+    "@supabase/supabase-js": "^2.48.1",
+    "pigeon-supabase-types": "*"
   }
 }

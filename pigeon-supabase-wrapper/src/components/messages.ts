@@ -1,22 +1,14 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import { Database } from "pigeon-supabase-types";
 
-export type MessageEntry = {
-  id: string;
-  created_at: string;
-  sender: string;
-  contents: string;
-  conversation_id: string;
-};
+export type MessageEntry = Database["public"]["Tables"]["messages"]["Row"];
 
-type MessagePayload = {
-  contents: string;
-  conversation_id: string;
-};
+type MessagePayload = Pick<MessageEntry, "contents" | "conversation_id">;
 
 export class PigeonSupabaseMessagesDB {
-  private client: SupabaseClient;
+  private client: SupabaseClient<Database>;
 
-  constructor(client: SupabaseClient) {
+  constructor(client: SupabaseClient<Database>) {
     this.client = client;
   }
 
@@ -29,7 +21,7 @@ export class PigeonSupabaseMessagesDB {
       .eq("conversation_id", conversationID);
 
     if (error) {
-      throw new Error(`Failed to retrieve conversations: ${error.message}`);
+      throw new Error(`Failed to retrieve messages: ${error.message}`);
     }
 
     return data || [];
@@ -45,7 +37,7 @@ export class PigeonSupabaseMessagesDB {
       .select("id, created_at, sender, contents, conversation_id");
 
     if (error) {
-      throw new Error(`Failed to create conversation: ${error.message}`);
+      throw new Error(`Failed to send message: ${error.message}`);
     }
 
     return data[0] as MessageEntry;

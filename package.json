@@ -23,7 +23,8 @@
   "workspaces": [
     "pigeon-front-react",
     "pigeon-supabase-wrapper",
-    "pigeon-clientside-encryption"
+    "pigeon-clientside-encryption",
+    "supabase"
   ],
   "author": "",
   "license": "ISC",

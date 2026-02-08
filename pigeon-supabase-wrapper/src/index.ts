@@ -5,6 +5,7 @@ import { PigeonSupabasePrivateKeysDB } from "./components/privateKeys";
 import { PigeonSupabaseConversationsDB } from "./components/conversations";
 import { PigeonSupabaseMessagesDB } from "./components/messages";
 import { PigeonSupabaseUsersDB } from "./components/users";
+import { Database } from "pigeon-supabase-types";
 
 export interface SupabaseConfig {
   url: string;
@@ -21,13 +22,13 @@ type PigeonSupabaseDB = {
 
 export class PigeonSupabaseWrapper {
   private static instance: PigeonSupabaseWrapper | null = null;
-  private client: SupabaseClient;
+  private client: SupabaseClient<Database>;
   public auth: PigeonSupabaseAuth;
 
   public db: PigeonSupabaseDB;
 
   private constructor(config: SupabaseConfig) {
-    this.client = createClient(config.url, config.anonKey);
+    this.client = createClient<Database>(config.url, config.anonKey);
     this.auth = new PigeonSupabaseAuth(this.client);
     this.db = {
       publicKeys: new PigeonSupabasePublicKeysDB(this.client),

@@ -1,9 +1,10 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import { Database } from "pigeon-supabase-types";
 
 export class PigeonSupabasePublicKeysDB {
-  private client: SupabaseClient;
+  private client: SupabaseClient<Database>;
 
-  constructor(client: SupabaseClient) {
+  constructor(client: SupabaseClient<Database>) {
     this.client = client;
   }
 

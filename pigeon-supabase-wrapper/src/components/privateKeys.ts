@@ -1,10 +1,11 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import type { CryptoRecipe } from "pigeon-clientside-encryption";
+import { Database } from "pigeon-supabase-types";
 
 export class PigeonSupabasePrivateKeysDB {
-  private client: SupabaseClient;
+  private client: SupabaseClient<Database>;
 
-  constructor(client: SupabaseClient) {
+  constructor(client: SupabaseClient<Database>) {
     this.client = client;
   }
 
@@ -36,6 +37,6 @@ export class PigeonSupabasePrivateKeysDB {
       throw new Error(`Failed to retrieve private key: ${error.message}`);
     }
 
-    return data;
+    return data ? { ...data, recipe: data.recipe as CryptoRecipe } : null;
   }
 }

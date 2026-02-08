@@ -1,16 +1,13 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import { Database } from "pigeon-supabase-types";
 
-export type ConversationEntry = {
-  id: string;
-  created_at: string;
-  user_one: string;
-  user_two: string;
-};
+export type ConversationEntry =
+  Database["public"]["Tables"]["conversations"]["Row"];
 
 export class PigeonSupabaseConversationsDB {
-  private client: SupabaseClient;
+  private client: SupabaseClient<Database>;
 
-  constructor(client: SupabaseClient) {
+  constructor(client: SupabaseClient<Database>) {
     this.client = client;
   }
 
