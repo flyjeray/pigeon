@@ -4,6 +4,12 @@ A practice project implementing end-to-end encrypted messaging with React and Su
 
 > **Note:** This project was created as a learning exercise to explore E2EE concepts. While functional, it uses simplified security mechanisms and is not intended for production use with sensitive communications.
 
+## Register flow
+
+Currently blocked by Supabase restrictions: GitHub Pages (`*.github.io`) cannot be used as the Site URL, so post-registration redirects do not work correctly on the deployed GH Pages build.
+
+Despite this, the user **is successfully verified** and can continue using the application normally.
+
 ## 📋 Table of Contents
 
 - [Overview](#overview)
