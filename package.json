@@ -9,7 +9,7 @@
     "build:wrapper": "npm run build --workspace=pigeon-supabase-wrapper",
     "build:frontend": "npm run build --workspace=pigeon-front-react",
     "build:encryption": "npm run build --workspace=pigeon-clientside-encryption",
-    "dev": "npm run build:wrapper && npm run build:encryption && npm run dev --workspace=pigeon-front-react",
+    "dev": "npm run build:encryption && npm run build:wrapper && npm run dev --workspace=pigeon-front-react",
     "dev:wrapper": "npm run watch --workspace=pigeon-supabase-wrapper",
     "dev:frontend": "npm run dev --workspace=pigeon-front-react",
     "lint": "eslint .",
