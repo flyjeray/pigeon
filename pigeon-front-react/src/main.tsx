@@ -5,7 +5,7 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import { LoginView, MessagingView, RegisterView } from "./views";
 import { ProtectedRoute } from "./utils";
 
-import "./index.scss";
+import "./index.css";
 
 const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
 

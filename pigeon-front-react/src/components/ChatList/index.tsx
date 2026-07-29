@@ -1,11 +1,13 @@
-import { useChatStore } from "../../state/chats";
-import { useChatList } from "../../hooks/useChatList";
-import { Container } from "../Container";
-import { Button } from "../Button";
-import { HorizontalDivider } from "../HorizontalDivider";
-import { Input } from "../Input";
-import { Row } from "../Row";
-import styles from "./styles.module.scss";
+import { UserPlus } from "lucide-react";
+import { useChatStore } from "@/state/chats";
+import { useChatList } from "@/hooks/useChatList";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
 
 export const ChatList = () => {
   const { currentChattedUser, selectChattedUser: setCurrentChatID } =
@@ -21,41 +23,57 @@ export const ChatList = () => {
     form.reset();
   };
 
+  const entries = Object.entries(chats);
+
   return (
-    <Container>
-      <form onSubmit={handleNewChatSubmit}>
-        <Row mobileColumn>
-          <Input
-            type="email"
-            name="recipientEmail"
-            placeholder="New Contact Email"
-            required
-          />
-          <Button style={{ flex: 1 }} type="submit">
-            Add
-          </Button>
-        </Row>
+    <div className="flex h-full w-full flex-col gap-3 p-3">
+      <form onSubmit={handleNewChatSubmit} className="flex gap-2">
+        <Input
+          type="email"
+          name="recipientEmail"
+          placeholder="New Contact Email"
+          required
+        />
+        <Button type="submit" size="icon" aria-label="Add contact">
+          <UserPlus />
+        </Button>
       </form>
 
       {error && (
-        <p style={{ color: "red", textAlign: "center", width: "100%" }}>
-          {error}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
-      {Object.entries(chats).length > 0 && <HorizontalDivider />}
+      {entries.length > 0 && <Separator />}
 
-      <div className={styles.contact_list}>
-        {Object.entries(chats).map(([user_id, chat]) => (
-          <Button
-            onClick={() => setCurrentChatID(user_id)}
-            key={`chat-${user_id}`}
-            disabled={currentChattedUser === user_id}
-          >
-            {chat.email}
-          </Button>
-        ))}
-      </div>
-    </Container>
+      <ScrollArea className="-mx-3 flex-1">
+        <div className="flex flex-col gap-1 px-3">
+          {entries.map(([user_id, chat]) => {
+            const isActive = currentChattedUser === user_id;
+            return (
+              <button
+                key={`chat-${user_id}`}
+                onClick={() => setCurrentChatID(user_id)}
+                disabled={isActive}
+                className={cn(
+                  "flex items-center gap-2 rounded-lg px-2 py-2 text-left text-sm transition-colors disabled:cursor-default",
+                  isActive
+                    ? "bg-secondary text-secondary-foreground"
+                    : "hover:bg-muted"
+                )}
+              >
+                <Avatar size="sm">
+                  <AvatarFallback>
+                    {chat.email.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="truncate">{chat.email}</span>
+              </button>
+            );
+          })}
+        </div>
+      </ScrollArea>
+    </div>
   );
 };
